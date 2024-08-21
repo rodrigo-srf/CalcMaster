@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Científica</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e2e2e2, #ffffff);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .calculator-container {
+            position: relative;
+            max-width: 360px;
+            width: 100%;
+        }
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: #333;
+            color: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            display: none; /* Oculto por padrão */
+            transition: opacity 0.3s ease;
+        }
+        .calculator.show {
+            display: grid;
+            opacity: 1;
+        }
+        .calculator.hide {
+            opacity: 0;
+        }
+        .calculator input {
+            grid-column: span 4;
+            padding: 20px;
+            border: none;
+            border-radius: 10px;
+            background: #444;
+            color: #fff;
+            font-size: 2em;
+            text-align: right;
+            box-sizing: border-box;
+        }
+        .calculator button {
+            padding: 20px;
+            border: none;
+            border-radius: 10px;
+            background: #555;
+            color: #fff;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .calculator button:hover {
+            background: #666;
+        }
+        .calculator button.operator {
+            background: #fe7b3e;
+            color: #fff;
+        }
+        .calculator button.operator:hover {
+            background: #fd6b3e;
+        }
+        .calculator button.double {
+            grid-column: span 2;
+        }
+        .calculator .history {
+            grid-column: span 4;
+            background: #444;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .calculator .history h3 {
+            margin: 0 0 10px;
+        }
+        .calculator .history ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .calculator .history li {
+            margin: 5px 0;
+        }
+        .calculator .theme-switch {
+            grid-column: span 4;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .calculator .theme-switch button {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #fe7b3e;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        .calculator .theme-switch button:hover {
+            background: #fd6b3e;
+        }
+        .calculator.dark-mode {
+            background: #222;
+        }
+        .calculator.dark-mode input {
+            background: #333;
+            color: #fff;
+        }
+        .calculator.dark-mode button {
+            background: #444;
+        }
+        .calculator.dark-mode button.operator {
+            background: #fe7b3e;
+        }
+        .calculator.dark-mode button:hover {
+            background: #555;
+        }
+        .toggle-button {
+            background: #fe7b3e;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
+        }
+        .toggle-button:hover {
+            background: #fd6b3e;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <button class="toggle-button" onclick="toggleCalculator()">Abrir Calculadora</button>
+        <div class="calculator" id="calculator">
+            <input type="text" id="display" disabled>
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="appendNumber('±')">±</button>
+            <button onclick="appendFunction('√')">√</button>
+            <button class="operator" onclick="setOperation('/')">/</button>
+
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="setOperation('*')">*</button>
+
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="setOperation('-')">-</button>
+
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="setOperation('+')">+</button>
+
+            <button class="double" onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button class="operator" onclick="calculate()">=</button>
+            <button class="operator" onclick="appendFunction('^')">^</button>
+
+            <button class="operator" onclick="appendFunction('sin')">sin</button>
+            <button class="operator" onclick="appendFunction('cos')">cos</button>
+            <button class="operator" onclick="appendFunction('tan')">tan</button>
+            <button class="operator" onclick="appendFunction('log')">log</button>
+
+            <div class="theme-switch">
+                <button onclick="toggleTheme()">Modo Escuro</button>
+            </div>
+
+            <div class="history">
+                <h3>Histórico</h3>
+                <ul id="history-list"></ul>
+                <button onclick="clearHistory()">Limpar Histórico</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        function toggleCalculator() {
+            const calculator = document.getElementById('calculator');
+            const button = document.querySelector('.toggle-button');
+            
+            if (calculator.classList.contains('show')) {
+                calculator.classList.remove('show');
+                calculator.classList.add('hide');
+                button.textContent = 'Abrir Calculadora';
+            } else {
+                calculator.classList.remove('hide');
+                calculator.classList.add('show');
+                button.textContent = 'Fechar Calculadora';
+            }
+        }
+    </script>
+</body>
+</html>
